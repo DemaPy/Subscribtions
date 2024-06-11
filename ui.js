@@ -1,5 +1,6 @@
 const state = {
-    title: ""
+    folders: [],
+    id: 1
 }
 
 // 1. Select content container (sidebar)
@@ -8,6 +9,7 @@ const contentContainer = document.querySelector("#contentContainer")
 
 // 2. Select second element within content container (subscriptions)
 const subscriptions = contentContainer.querySelector("#sections").children[1]
+const items = subscriptions.querySelector("#items")
 
 
 function init() {
@@ -43,12 +45,12 @@ const content = {
         `
         return svg
     },
-    create_folder: () => {
+    create_folder: (folder) => {
         const details = document.createElement("details")
         details.style = "margin-block-end: 0.6rem;"
         
         const summary = document.createElement('summary')
-        summary.textContent = state.title
+        summary.textContent = folder.title
         summary.style = "font-size: 1.4rem; color: #ffffff; padding: .8rem; background: #24242444; border-radius: 0.6rem; cursor: pointer;"
         
         const subscriptionList = document.createElement("div")
@@ -57,7 +59,6 @@ const content = {
         
         details.append(summary)
         details.append(subscriptionList)
-        
         return details
     },
     folder_name: () => {
@@ -75,7 +76,6 @@ function applyListeners({key, node}) {
                 event: "click",
                 handler: () => {
                     // 3. Create folder with name
-                    const items = subscriptions.querySelector("#items")
                     const input = content.folder_name()
                     items.insertAdjacentElement("afterbegin", input)
                     input.focus()
@@ -92,31 +92,12 @@ function applyListeners({key, node}) {
         ],
         "folder_name": [
             {
-                event: "input",
-                handler: (ev) => state.title = ev.target.value
-            },
-            {
                 event: "keypress",
                 handler: (event) => {
-                    if (state.title.trim().length < 3) return
+                    if (event.target.value.trim().length < 3) return
                     if (event.key === "Enter") {
-                        // 3. Create folder with name
-                        const items = subscriptions.querySelector("#items")
-                        items.insertAdjacentElement("afterbegin", content.create_folder())
-                        state.title = ""
-                        event.target.remove()
+                        handleInputSubmit(event)
                     }
-                }
-            },
-            {
-                event: "blur",
-                handler: (ev) => {
-                    if (state.title.trim().length < 3) return
-                    // 3. Create folder with name
-                    const items = subscriptions.querySelector("#items")
-                    items.insertAdjacentElement("afterbegin", content.create_folder())
-                    state.title = ""
-                    ev.target.remove()
                 }
             }
         ]
@@ -124,6 +105,29 @@ function applyListeners({key, node}) {
 
     for (let {event, handler} of events[key]) {
         node.addEventListener(event, handler)
+    }
+}
+let unsub
+function handleInputSubmit(ev) {
+    if (unsub) unsub()
+    // 3. Create folder with name
+    state.folders.push({id: state.id++, title: event.target.value, subscriptions: []})
+    unsub = handleAddFolder()
+    state.title = ""
+    ev.target.remove()
+}
+
+function handleAddFolder() {
+    let cbs = []
+    for (let folder of state.folders) {
+        const details = content.create_folder(folder)
+        items.insertAdjacentElement("afterbegin", details)
+        cbs.push(details)
+    }
+
+    return () => {
+        console.log(1)
+        cbs.forEach(item => item.remove())
     }
 }
 

@@ -28,12 +28,18 @@ const content = {
         svg.setAttribute("fill", "none")
         svg.setAttribute("stroke", "white")
         
-        svg.setAttribute("stroke-width", "2")
+        svg.setAttribute("stroke-width", "1")
         svg.setAttribute("stroke-linecap", "round")
         svg.setAttribute("stroke-linejoin", "round")
         svg.setAttribute("class", "lucide lucide-folder")
+        
         applyListeners({key: "title_svg", node: svg})
-        svg.innerHTML = '<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>'
+    
+        svg.innerHTML = `
+            <title>Create folder</title>
+            <use xlink:href="#some-icon"></use>
+            <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>
+        `
         return svg
     },
     create_folder: () => {
@@ -55,6 +61,7 @@ const content = {
     },
     folder_name: () => {
         const input = document.createElement("input")
+        input.style = "margin: 0.6rem 1rem; border-radius: 0.4rem; background: #ccc;"
         applyListeners({key: "folder_name", node: input})
         return input
     }
@@ -68,7 +75,9 @@ function applyListeners({key, node}) {
                 handler: () => {
                     // 3. Create folder with name
                     const items = subscriptions.querySelector("#items")
-                    items.insertAdjacentElement("afterbegin", content.folder_name())
+                    const input = content.folder_name()
+                    items.insertAdjacentElement("afterbegin", input)
+                    input.focus()
                 }
             },
             {
@@ -88,18 +97,20 @@ function applyListeners({key, node}) {
             {
                 event: "keypress",
                 handler: (event) => {
+                    if (state.title.trim().length < 3) return
                     if (event.key === "Enter") {
                         // 3. Create folder with name
                         const items = subscriptions.querySelector("#items")
                         items.insertAdjacentElement("afterbegin", content.create_folder())
                         state.title = ""
-                        ev.target.remove()
+                        event.target.remove()
                     }
                 }
             },
             {
                 event: "blur",
                 handler: (ev) => {
+                    if (state.title.trim().length < 3) return
                     // 3. Create folder with name
                     const items = subscriptions.querySelector("#items")
                     items.insertAdjacentElement("afterbegin", content.create_folder())

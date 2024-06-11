@@ -11,6 +11,7 @@ const subscriptions = contentContainer.querySelector("#sections").children[1]
 
 
 function init() {
+    if (!contentContainer) return
     // 2.1 Add folder icon to section title
     const titleContainer = subscriptions.querySelector("h3")
     titleContainer.style = "display: flex; align-items: center; justify-content: space-between"

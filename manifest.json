@@ -1,0 +1,14 @@
+{
+  "name": "YT Enchancer",
+  "description": "Enchance UX of youtube.",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "content_scripts": [
+    {
+      "js": ["./content/folders/index.js"],
+      "matches": ["https://www.youtube.com/*"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": ["scripting", "activeTab", "storage"]
+}
